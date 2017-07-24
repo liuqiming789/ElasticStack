@@ -1,0 +1,71 @@
+[elastic@bjxhm-gncs-231 config]$ cat logstash-index.conf 
+input {
+    beats  {
+        port => 5044
+    }
+}
+filter {
+
+        grok {
+                match => { 
+                        "message" => "\|%{TIMESTAMP_ISO8601:timestamp}\|%{DATA:priority}\|%{DATA:thread}\|%{DATA:position}\|%{DATA:traceid}\|%{DATA:srcip}\|%{DATA:localip}\|%{DATA:srcsyscode}\|%{DATA:flowno}\|%{DATA:logtype}\|%{GREEDYDATA:custmsg}\|%{GREEDYDATA:info}\|%{GREEDYDATA:stackinfo}"
+                }
+                add_tag => "parsesuccesslog"
+        }
+
+        if "_grokparsefailure" in [tags]{
+                mutate { remove_tag => [ "_grokparsefailure" ] }
+                grok {
+                        match => { 
+                                "message" => "\|%{TIMESTAMP_ISO8601:timestamp}\|%{DATA:priority}\|%{DATA:thread}\|%{DATA:position}\|%{GREEDYDATA:info}"
+                                }
+                        add_tag => "parsefailurelog"
+                }
+        }
+
+    date {
+      match => [ "timestamp", "UNIX", "YYYY-MM-dd HH:mm:ss", "ISO8601"]
+      remove_field => [ "timestamp" ]
+    }
+
+        kv {
+                source => "custmsg"
+                field_split => ","
+                value_split => "="
+        }
+
+        if "_grokparsefailure" in [tags]{
+                mutate{
+                        remove_field => [ "custmsg", "host", "path", "offset","beat.version","beat.name","input_type"]
+                }
+        }else{
+                mutate{
+                        remove_field => [ "custmsg", "message", "host", "path" , "offset","beat.version","beat.name","input_type"]
+                }
+        }
+}
+
+output {
+
+        if "_grokparsefailure" in [tags]{
+                file {
+                        path => "/app/elastic/soft/logstash/grokparsefailure.txt"
+                }
+        }
+
+        if "parsefailurelog" in [tags]{
+                elasticsearch {
+                        hosts => ["192.168.7.230:9200","192.168.7.231:9200"] 
+                        index => "ltzf-parsefailure-%{+YYYY.MM.dd}"
+                        template_overwrite => true
+                }
+        }else {
+                elasticsearch {
+                        hosts => ["192.168.7.230:9200","192.168.7.231:9200"]                
+                        index => "ltzf-%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+                        document_type => "%{[@metadata][type]}"
+                        template_overwrite => true
+
+                }
+        }
+}
