@@ -12,4 +12,4 @@ kibana网页端口			172.28.11.167:5601
 kibana启动				%KIBANA_HOME%\bin\kibana.bat
 
 elasticsearch-head 
-						file:///D:/installtools/ELK_ElasticStack/elasticsearch-head/index.html?auth_user=elastic&auth_password=changeme
+file:///D:/installtools/ELK_ElasticStack/elasticsearch-head/index.html?auth_user=elastic&auth_password=changeme
