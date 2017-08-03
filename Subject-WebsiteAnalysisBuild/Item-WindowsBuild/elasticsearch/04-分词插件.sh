@@ -1,0 +1,1 @@
+http://localhost:9200/_analyze?pretty&analyzer=standard
