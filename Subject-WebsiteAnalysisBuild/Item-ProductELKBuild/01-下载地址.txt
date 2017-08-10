@@ -1,0 +1,15 @@
+elastic:
+https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.1.zip
+https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.1.tar.gz
+
+kibana:
+https://artifacts.elastic.co/downloads/kibana/kibana-5.5.1-linux-x86_64.tar.gz
+
+filebeat:
+https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.5.1-linux-x86_64.tar.gz
+
+logstash:
+https://artifacts.elastic.co/downloads/logstash/logstash-5.5.1.tar.gz
+
+elasticsearch-hadoop:
+http://download.elastic.co/hadoop/elasticsearch-hadoop-5.5.1.zip
