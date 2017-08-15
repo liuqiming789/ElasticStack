@@ -90,7 +90,5 @@ echo "elk hard memlock unlimited">>/etc/security/limits.conf
 echo "vm.max_map_count=262144">>/etc/sysctl.conf
 sysctl -p
 # sysctl -w vm.max_map_count=262144
-export JAVA_HOME=/app/elk/jdk1.8.0_121
-export CLASS_PATH=.:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
-export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+vi
 yum erase java-1.7.0-openjdk -y
