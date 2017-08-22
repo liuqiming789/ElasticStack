@@ -85,3 +85,11 @@ filter {
     remove_tag => [ "foo_%{somefield}", "sad_unwanted_tag"]
   }
 }
+
+
+filter {
+  mutate {
+    # Renames the 'HOSTORIP' field to 'client_ip'
+    rename => { "HOSTORIP" => "client_ip" }
+  }
+}

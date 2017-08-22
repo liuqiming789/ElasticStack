@@ -140,12 +140,24 @@ filter {
                 }
     }
     kv {
-        id => "filter-grok-inqueryPhoneNumInfo"
+        id => "filter-kv-inqueryPhoneNumInfo"
         source => "message_info"
         field_split=>","
         value_split => ":"
         remove_field=>['message_info','message']
     }
-    mutate
+    mutate {
+        rename => { "\"signType\"" => "signType" }
+        rename => { "\"paramsType\"" => "paramsType" }
+        rename => { "\"resHostIp\"" => "resHostIp" }
+        rename => { "\"params\"" => "retCode" }
+        rename => { "\"retMsg\"" => "retMsg" }
+        rename => { "\"appID\"" => "appID" }
+        rename => { "\"signMac\"" => "signMac" }
+        rename => { "\"reqSeq\"" => "reqSeq" }
+        rename => { "\"stepNo\"" => "stepNo" }
+        rename => { "\"reqHostIp\"" => "reqHostIp" }
+        rename => { "\"operTime\"" => "operTime" }
+    }
 }
 output {stdout{codec => json}}
