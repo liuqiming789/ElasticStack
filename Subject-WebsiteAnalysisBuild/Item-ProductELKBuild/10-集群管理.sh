@@ -95,3 +95,6 @@ logstash-2017.08.04 3     UNASSIGNED                                ALLOCATION_F
 logstash-2017.08.04 3     UNASSIGNED                                INDEX_CREATED 
 logstash-2017.08.03 3     UNASSIGNED                                ALLOCATION_FAILED failed to create shard, failure IOException[No space left on device]
 logstash-2017.08.03 3     UNASSIGNED                                ALLOCATION_FAILED shard failure, reason [refresh failed], failure IOException[No space left on device]
+# 删除索引
+curl -XDELETE 'http://192.168.11.73:9200/logstash-2017.08.04'
+curl -XDELETE 'http://192.168.11.73:9200/logstash-2017.08.03'
