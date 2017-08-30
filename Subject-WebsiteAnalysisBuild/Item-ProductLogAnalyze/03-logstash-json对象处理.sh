@@ -161,3 +161,97 @@ filter {
     }
 }
 output {stdout{codec => json}}
+####################################################################
+## v3.4 --timestamp字段
+####################################################################
+input {
+    file {
+        id => "input-file-inqueryPhoneNumInfo"
+        path => ["/app/elk/filebeat_data/inqueryPhoneNumInfo.log"]
+        start_position => "beginning"
+        sincedb_path => "/dev/null"
+        discover_interval => 10
+    }
+}
+filter {
+    grok {
+        id => "filter-grok-inqueryPhoneNumInfo"
+        match => {
+                    "message" => "\[(?<app_name>[0-9A-Za-z._-]{1,70})\] \[%{TIMESTAMP_ISO8601:web_timestamp},%{INT:msec}] \[INFO ] - \? \? \[(?<http_bio>[0-9A-Za-z._-]{1,70})\:%{INT:http_bio_id}\]\- \{(?<message_info>[u4e00-\u9fa5a-zA-Z0-9 \".:*,{}-]{1,100000})\}"
+                    remove_field    =>  ['message']
+                }
+    }
+    kv {
+        id => "filter-kv-inqueryPhoneNumInfo"
+        source => "message_info"
+        field_split=>","
+        value_split => ":"
+        remove_field=>['message_info','message']
+    }
+    mutate {
+        rename => { "\"signType\"" => "signType" }
+        rename => { "\"paramsType\"" => "paramsType" }
+        rename => { "\"resHostIp\"" => "resHostIp" }
+        rename => { "\"params\"" => "retCode" }
+        rename => { "\"retMsg\"" => "retMsg" }
+        rename => { "\"appID\"" => "appID" }
+        rename => { "\"signMac\"" => "signMac" }
+        rename => { "\"reqSeq\"" => "reqSeq" }
+        rename => { "\"stepNo\"" => "stepNo" }
+        rename => { "\"reqHostIp\"" => "reqHostIp" }
+        rename => { "\"operTime\"" => "operTime" }
+    }
+    date {
+        match => [ "web_timestamp", "YYYY-MM-dd HH:mm:ss", "ISO8601","UNIX"]
+        target => "@timestamp" #string类型 default to updating the @timestamp field of the event
+        timezone => "Asia/Shanghai" #string类型
+    }
+}
+output {stdout{codec => json}}
+####################################################################
+## v3.4 --timestamp字段
+####################################################################
+input {
+    file {
+        id => "input-file-inqueryPhoneNumInfo"
+        path => ["/app/elk/filebeat_data/inqueryPhoneNumInfo.log"]
+        start_position => "beginning"
+        sincedb_path => "/dev/null"
+        discover_interval => 10
+    }
+}
+filter {
+    grok {
+        id => "filter-grok-inqueryPhoneNumInfo"
+        match => {
+                    "message" => "\[(?<app_name>[0-9A-Za-z._-]{1,70})\] \[%{TIMESTAMP_ISO8601:web_timestamp},%{INT:msec}] \[INFO ] - \? \? \[(?<http_bio>[0-9A-Za-z._-]{1,70})\:%{INT:http_bio_id}\]\- \{(?<message_info>[u4e00-\u9fa5a-zA-Z0-9 \".:*,{}-]{1,100000})\}"
+                    remove_field    =>  ['message']
+                }
+        add_field => {"index_name" => "inqueryPhoneNumInfo"}
+    }
+
+    mutate {
+        gsub => [
+        # replace all forward slashes with underscore
+        "message_info", "\"", "",
+        "message_info", "}", ""
+        ]
+    }
+
+    kv {
+        id => "filter-kv-inqueryPhoneNumInfo"
+        source => "message_info"
+        field_split=>","
+        value_split => ":"
+        remove_field=>['message_info','message']
+    }
+
+    date {
+        match => [ "web_timestamp", "YYYY-MM-dd HH:mm:ss", "ISO8601","UNIX"]
+        target => "@timestamp" #string default to updating the @timestamp field of the event
+        timezone => "Asia/Shanghai" #string
+    }
+}
+output {stdout{codec => json}}
+
+

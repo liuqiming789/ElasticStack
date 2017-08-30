@@ -42,8 +42,8 @@ network.host: ["192.168.11.73","127.0.0.1"]
 network.host: ["192.168.11.74","127.0.0.1"]
 network.host: ["192.168.11.75","127.0.0.1"]
 http.port: 9200
-http.port: 9201
-http.port: 9202
+http.port: 9200
+http.port: 9200
 
 (5)To avoid a split brain:
 discovery.zen.minimum_master_nodes: 2
