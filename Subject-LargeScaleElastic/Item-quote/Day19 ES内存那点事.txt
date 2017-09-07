@@ -1,0 +1,10 @@
+Day1: 大规模Elasticsearch集群管理心得
+
+https://www.elastic.co/blog/found-understanding-memory-pressure-indicator
+
+Understanding the Memory Pressure Indicator
+
+By Konrad Beiske
+
+https://elasticsearch.cn/article/32
+

@@ -1,0 +1,60 @@
+Day 23 谈谈ES的Recovery
+
+	Recovery是指将一个索引的未分配shard分配到一个结点的过程,在快照恢复，更改索引复制片数量，结点故障或者结点启动时发生
+	如果某个shard主片在，副片所在结点挂了，那么选择另外一个可用结点，将副片分配(allocate)上去，然后进行主从片的复制。
+	如果某个shard的主片所在结点挂了，副片还在，那么将副片升级为主片，然后做主副复制
+	如果某个shard的主副片所在结点都挂了，则暂时无法恢复，等待持有相关数据的结点重新加入集群后，从结点上恢复主分片，再选择某个结点分配复制片，并从主分片同步数据。
+	http://192.168.11.74:9200/_cat/health?v
+	Green: 所有的shard主副片都完好的
+	Yellow: 所有shard的主片都完好，部分副片没有了，数据完整性依然完好。
+	Red: 某些shard的主副片都没有了，对应的索引数据不完整
+
+
+一.减少集群Full Restart造成的数据来回拷贝
+
+先加入集群的结点可能已经可以选举好master，并立即启动了recovery的过程，由于这个时候整个集群数据还不完整，master会指示一些结点之间相互开始复制数据。 那些晚到的结点，一旦发现本地的数据已经被复制到其他结点，则直接删除掉本地“失效”的数据。 当整个集群恢复完毕后，数据分布不均衡显然是不均衡的，master会触发rebalance过程，将数据在结点之间挪动。整个过程无谓消耗了大量的网络流量。 合理设置recovery相关参数则可以防范这种问题的发生
+
+gateway.expected_nodes
+gateway.expected_master_nodes
+gateway.expected_data_nodes
+
+以上三个参数是说集群里一旦有多少个结点就立即开始recovery过程。 不同之处在于，第一个参数指的是master或者data都算在内，而后面两个参数则分指master和data node。
+
+在期待的节点数条件满足之前, recovery过程会等待gateway.recover_after_time (默认5分钟) 这么长时间，一旦等待超时，则会根据以下条件判断是否启动:
+
+gateway.recover_after_nodes
+gateway.recover_after_master_nodes
+gateway.recover_after_data_nodes
+
+举例来说，对于一个有10个data node的集群，如果有以下的设置:
+
+gateway.expected_data_nodes: 10
+gateway.recover_after_time: 5m
+gateway.recover_after_data_nodes: 8
+
+
+那么集群5分钟以内10个data node都加入了，或者5分钟以后8个以上的data node加入了，都会立即启动recovery过程。
+
+
+减少主副本之间的数据复制
+如果不是full restart，而是重启单个data node，仍然会造成数据在不同结点之间来回复制。为避免这个问题，可以在重启之前，先关闭集群的shard allocation
+
+put /_cluster/settings
+{
+	"transient":{
+	"cluster.routing.allocation.enable":"none"
+	}
+}
+
+然后在结点重启完成加入集群后，再重新打开:
+
+put /_cluster/settings
+{
+	"transient":{
+	"cluster.routing.allocation.enable":"all"
+	}
+}
+
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/recovery.html
+
