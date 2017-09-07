@@ -1,0 +1,242 @@
+一.Open / Close Index API
+1.查看是否存在
+head logstash-2017.08.16
+
+POST logstash-2017.08.16/_close
+
+注:
+	1.mapings:
+	GET logstash-2017.08.16/_mapping
+	GET logstash-2017.08.16/_mappings
+
+	2.settings
+	GET logstash-2017.08.16/_settings
+
+POST logstash-2017.08.16/_open
+
+注:
+#! Deprecation: field [include_in_all] is deprecated, as [_all] is deprecated, and will be disallowed in 6.0, use [copy_to] instead.
+{
+  "acknowledged": true
+}
+
+
+二.Update Indices Settings
+
+GET _cat/indices?v 
+
+PUT /logstash-2017.08.16/_settings
+{
+    "index" : {
+        "number_of_replicas" : 1
+    }
+}
+
+1.Bulk Indexing Usage
+
+PUT /logstash-2017.08.06/_settings
+{
+    "index" : {
+        "refresh_interval" : "1s"
+    }
+}
+
+POST /logstash-2017.08.06/_forcemerge?max_num_segments=5
+
+{
+  "_shards": {
+    "total": 10,
+    "successful": 10,
+    "failed": 0
+  }
+}
+
+2.Updating Index Analysis
+
+It is also possible to define new analyzers for the index. But it is required to close the index first and open it after the changes are made.
+
+POST /logstash-2017.08.06/_close
+
+PUT /logstash-2017.08.06/_settings
+{
+  "analysis" : {
+    "analyzer":{
+      "content":{
+        "type":"custom",
+        "tokenizer":"whitespace"
+      }
+    }
+  }
+}
+#! Deprecation: field [include_in_all] is deprecated, as [_all] is deprecated, and will be disallowed in 6.0, use [copy_to] instead.
+
+POST /logstash-2017.08.06/_open
+
+三.Static index settings
+
+1.index.number_of_shards
+This setting can only be set at index creation time
+
+get /logstash-2017.08.06/_settings/index.number_of_shards
+settings": {
+      "index": {
+        "number_of_shards": "5"
+      }
+
+四.Dynamic index settings
+
+
+1.index.number_of_replicas
+get /logstash-2017.08.06/_settings/index.number_of_replicas
+
+2.index.refresh_interval
+get /logstash-2017.08.06/_settings/index.refresh_interval
+
+
+五.Settings in other index modules
+(一) Analysis
+1.作用
+added to the inverted index in order to make the document searchable
+used by high level queries such as the match query to generate search terms.
+
+2.Specifying an index time analyzer
+
+Each text field in a mapping can specify its own analyzer:
+
+PUT logstash-2017.08.06
+{
+  "mappings": {
+    "my_type": {
+      "properties": {
+        "title": {
+          "type":     "text",
+          "analyzer": "standard"
+        }
+      }
+    }
+  }
+}
+
+"index [logstash-2017.08.06/JdKJOIkzQR-QU9GGCL6pjw] already exists
+
+3.Specifying a search time analyzer
+
+The analyzer to use to search a particular field is determined by looking for:
+
+  An analyzer specified in the query itself.
+  The search_analyzer mapping parameter.
+  The analyzer mapping parameter.
+  An analyzer in the index settings called default_search.
+  An analyzer in the index settings called default.
+  The standard analyzer.
+
+4.Anatomy of an analyzer
+
+An analyzer  — whether built-in or custom — is just a package which contains three lower-level building blocks: character filters, tokenizers, and token filters.
+
+The built-in analyzers pre-package these building blocks into analyzers suitable for different languages and types of text. Elasticsearch also exposes the individual building blocks so that they can be combined to define new custom analyzers.
+
+(1)Character Filtersedit
+https://www.elastic.co/guide/en/elasticsearch/reference/5.4/analysis-charfilters.html#analysis-charfilters
+HTML Strip Character Filter
+The html_strip character filter strips out HTML elements like <b> and decodes HTML entities like &amp;.
+ "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "keyword",
+          "char_filter": ["my_char_filter"]
+        }
+      },
+      "char_filter": {
+        "my_char_filter": {
+          "type": "html_strip",
+          "escaped_tags": ["b"]
+        }
+      }
+    }
+
+Mapping Character Filter
+The mapping character filter replaces any occurrences of the specified strings with the specified replacements.
+
+"analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "keyword",
+          "char_filter": [
+            "my_char_filter"
+          ]
+        }
+      },
+      "char_filter": {
+        "my_char_filter": {
+          "type": "mapping",
+          "mappings": [
+            "٠ => 0",
+            "١ => 1",
+            "٢ => 2",
+            "٣ => 3",
+            "٤ => 4",
+            "٥ => 5",
+            "٦ => 6",
+            "٧ => 7",
+            "٨ => 8",
+            "٩ => 9"
+          ]
+        }
+
+ Pattern Replace Character Filter
+The pattern_replace character filter replaces any characters matching a regular expression with the specified replacement.
+      "char_filter": {
+        "my_char_filter": {
+          "type": "pattern_replace",
+          "pattern": "(\\d+)-(?=\\d)",
+          "replacement": "$1_"
+        }
+
+
+
+(2)tokenizer
+(3)word_oriented_tokenizers
+https://www.elastic.co/guide/en/elasticsearch/reference/5.4/analysis-standard-tokenizer.html
+
+(二)Index Shard Allocation
+This module provides per-index settings to control the allocation of shards to nodes:
+
+Shard allocation filtering: Controlling which shards are allocated to which nodes.
+Delayed allocation: Delaying allocation of unassigned shards caused by a node leaving.
+Total shards per node: A hard limit on the number of shards from the same index per node.
+
+1.Shard allocation filtering
+
+These metadata attributes can be used with the index.routing.allocation.* settings to allocate an index to a particular group of nodes. For instance, we can move the index test to either big or medium nodes as follows:
+
+PUT logstash-2017.08.06/_settings
+{
+  "index.routing.allocation.include.size": "big,medium"
+}
+
+#we could move the index test to big nodes in rack1 with the following:
+
+PUT logstash-2017.08.06/_settings
+{
+  "index.routing.allocation.include.size": "big",
+  "index.routing.allocation.include.rack": "rack1"
+}
+
+
+index.routing.allocation.include.{attribute}
+Assign the index to a node whose {attribute} has at least one of the comma-separated values.
+index.routing.allocation.require.{attribute}
+Assign the index to a node whose {attribute} has all of the comma-separated values.
+index.routing.allocation.exclude.{attribute}
+Assign the index to a node whose {attribute} has none of the comma-separated values.
+
+PUT test/_settings
+{
+  "index.routing.allocation.include._ip": "192.168.2.*"
+}
+
+
+2.Delaying allocation when a node leaves
+
+
