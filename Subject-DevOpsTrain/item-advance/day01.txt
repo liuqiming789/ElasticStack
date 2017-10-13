@@ -1,0 +1,38 @@
+_cat请求参数
+显示表头	?v
+显示全部可用参数	?help
+指定显示所需参数	?h=xxx,yyy
+
+
+http://9.110.187.60:9200/_plugin/kopf/#!/cluster
+http://9.110.187.60:5601/app/marvel
+安装marvel要求全部节点都必须有license，否则节点加入会失败
+
+即使监控工具:
+Kopf
+Bigdesk(不支持2.x)
+Marvel
+
+
+zabbix
+pip install es_stats_zabbix
+
+https://github.com/untergeek/zabbix-grab-bag/tree/master/Elasticsearch
+
+http://yujianglei.blog.51cto.com/blog/7215578/1773842
+
+http://jingyan.baidu.com/article/a65957f4ff33c524e77f9b42.html
+Admin/zabbix
+
+Administration/General/value mapping
+
+Import template
+
+下载es_stats_zabbix.userparam放到/etc/zabbix/zabbix-agent.d/目录，修改命令行路径/usr/local/bin到/usr/bin，修改配置文件路径
+
+下载es_stats_zabbix.ini.sample到修改的配置文件路径
+
+修改配置文件中zabbix_host为zabbix server
+
+重启 zabbix-agent 服务
+######################################################################

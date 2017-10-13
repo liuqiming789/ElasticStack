@@ -1,0 +1,66 @@
+二、安装IK分词插件
+
+    假设读者已经安装好ES，如果没有的话，请参考ElasticSearch入门 —— 集群搭建。安装IK分词需要的资源可以从这里下载，整个安装过程需要三个步骤：
+
+    1、获取分词的依赖包
+
+    通过git clone https://github.com/medcl/elasticsearch-analysis-ik，
+    下载分词器源码，然后进入下载目录，
+    执行命令：mvn clean package，
+    打包生成elasticsearch-analysis-ik-1.2.5.jar。将这个jar拷贝到ES_HOME/plugins/analysis-ik目录下面，如果没有该目录，则先创建该目录。
+
+    2、ik目录拷贝
+
+    将下载目录中的ik目录拷贝到ES_HOME/config目录下面。
+
+    3、分词器配置
+
+    打开ES_HOME/config/elasticsearch.yml文件，在文件最后加入如下内容：
+
+index:
+  analysis:                   
+    analyzer:      
+      ik:
+          alias: [ik_analyzer]
+          type: org.elasticsearch.index.analysis.IkAnalyzerProvider
+      ik_max_word:
+          type: ik
+          use_smart: false
+      ik_smart:
+          type: ik
+          use_smart: true
+index.analysis.analyzer.default.type: ik
+    ok！插件安装已经完成，请重新启动ES，接下来测试ik分词效果啦！
+
+
+
+   4\词库还是一样 
+cd config  
+wget http://github.com/downloads/medcl/elasticsearch-analysis-ik/ik.zip --no-check-certificate  
+unzip ik.zip  
+rm ik.zip  
+
+
+
+indexAnalyzer为索引时使用的分词器，searchAnalyzer为搜索时使用的分词器。
+
+XContentBuilder content = XContentFactory.jsonBuilder().startObject()  
+        .startObject("page")  
+          .startObject("properties")         
+            .startObject("title")  
+              .field("type", "string")             
+              .field("indexAnalyzer", "ik")  
+              .field("searchAnalyzer", "ik")  
+            .endObject()   
+            .startObject("code")  
+              .field("type", "string")           
+              .field("indexAnalyzer", "ik")  
+              .field("searchAnalyzer", "ik")  
+            .endObject()       
+          .endObject()  
+         .endObject()  
+       .endObject()  
+
+
+
+  
