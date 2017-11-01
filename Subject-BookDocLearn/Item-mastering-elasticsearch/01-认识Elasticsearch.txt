@@ -8,3 +8,96 @@ Token: 它是单个Term在所属Field中文本的呈现形式，包含了Term内
 (1)Apache Lucene把所有的信息都写入到一个称为**倒排索引**的数据结构中
 这种数据结构把索引中的每个Term与相应的Document映射起来;
 数据以Term为导向，而不是以Document为导向
+
+(2)
+3个文档:
+* ElasticSearch Server (document 1) 
+* Mastering ElasticSearch (document 2) 
+* Apache Solr 4 Cookbook (document 3)
+
+的存储方式为:
+| Term | count | Docs|
+| -- | -- | -- | 
+| 4 | 1 | <3> |
+|Apache | 1 | <3> |
+| Cookbook | 1 | <3> | 
+| ElasticSearch | 2 | <1><2> | 
+| Mastering | 1 | <1> | 
+| Server | 1 | <1> | 
+| Solr | 1 | <3> |
+
+(3)
+每个索引被分成了多个段(Segment)，段具有一次写入，多次读取的特点.
+段就无法被修改。例如：被删除文档的信息被存储到一个单独的文件，但是其它的段文件并没有被修改。
+多个段是可以合并的，这个合并的过程称为segments merge
+段合并的过程是一个I/O密集型的任务,段合并还能够提高搜索的效率
+
+2.文本分析(analysis)
+(1)课题:
+传入到Document中的数据是如何转变成倒排索引的？
+查询语句是如何转换成一个个Term使高效率文本搜索变得可行？
+(2)分析组件:
+analyzer由一个分词器(tokenizer)和0个或者多个过滤器(filter)组成,也可能会有0个或者多个字符映射器(character mappers)组成。
+(3)分词器tokenizer:
+Lucene中的tokenizer用来把文本拆分成一个个的Token。Token包含了比较多的信息，比如Term在文本的中的位置及Term原始文本，以及Term的长度.文本经过tokenizer处理后的结果称为token stream。token stream其实就是一个个Token的顺序排列.
+(3)filter链
+filter链将用来处理TokenStream中的每一个token,这些处理方式包括删除Token,改变Token，甚至添加新的Token.
+Lowercase filter：把所有token中的字符都变成小写
+ASCII folding filter：去除tonken中非ASCII码的部分
+Synonyms filter：根据同义词替换规则替换相应的token
+Multiple language-stemming filters：把Token(实际上是Token的文本内容)转化成
+词根或者词干的形式。
+
+3.索引和查询
+索引过程：Lucene用用户指定好的analyzer解析用户添加的Document。当然Document
+中不同的Field可以指定不同的analyzer。
+
+搜索过程：用户的输入查询语句将被选定的查询解析器(query parser)所解析,生成多个
+Query对象。在ElasticSearch中，有的Query对象会被解析(analyzed)，有的不会，比如：前缀查询(prefix query)就不会被解析，精确匹配查询(match query)就会被解析。
+
+4.Lucene查询语言
+
+二.认识 ElasticSearch
+
+1.概念:
+(1)索引index
+在ElasticSearch中被视为单独的一个索引(index)，在Lucene中可能
+不止一个。这是因为在分布式体系中，ElasticSearch会用到分片(shards)和备份(replicas)机制将一个索引(index)存储多份。
+
+(2)文档
+有多个值的值称为多值域(multi-valued)
+lasticSearch中的文档(Document)就是Lucene中的文档(Document)
+
+(3)参数映射(Mapping)
+用户可以配置输入文本分解成Token的方式；哪些Token应该被过滤
+掉；或者其它的的处理流程，比如去除HTML标签。此外，ElasticSearch提供的各种特性，比
+如排序的相关信息。保存上述的配置信息，这就是参数映射(Mapping)
+
+(4)文档类型
+文档类型使得同一个索引中在存储结构不同文档时，只需要依据文档类型就可以找到对应的参数映射(Mapping)信息，方便文档的存取。 
+
+(5)节点和集群
+
+(5)分片索引shard
+ElasticSearch把数据分发到多个存储Lucene索引的物理机上。这些Lucene索引称为分片索引，这个分发的过程称为索引分片(Sharding)
+
+(6)索引副本(Replica)
+
+(7)Gateway
+收集集群的状态、索引的参数等信息。这些数据被存储在Gateway中。
+
+2.工作原理
+节点启动后，它会利用多播(multicast),寻找集群中的其它节点，并与之建立连接
+在集群中，一个节点被选举成主节点(master node)。这个节点负责管理集群的状态，当
+群集的拓扑结构改变时把索引分片分派到相应的节点上。主节点会去检查哪些分片可用，决定哪些分片作为主分片.对于每个丢失的主分片，新的主分片将从剩余的分片
+副本(Replica)中选举出来
+
+(1)通信
+ElasticSearch认为数据应该伴随在URL中，或者作为请求的主体(request body)，以一种
+JSON格式的文档发送给服务器.
+
+
+(2)索引数据
+。river运行在ElasticSearch集群的节点上，能够从外部系统中获取数据。
+索引数据的操作只会发生在主分片(primary shard)上，而不会发生在分片副本(Replica) 上.
+
