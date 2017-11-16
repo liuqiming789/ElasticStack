@@ -100,4 +100,3 @@ JSON格式的文档发送给服务器.
 (2)索引数据
 。river运行在ElasticSearch集群的节点上，能够从外部系统中获取数据。
 索引数据的操作只会发生在主分片(primary shard)上，而不会发生在分片副本(Replica) 上.
-

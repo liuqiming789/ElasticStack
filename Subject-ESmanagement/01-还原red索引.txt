@@ -1,0 +1,3 @@
+官网原话： 1、Allocate an unassigned shard to a node. Accepts the index and shard for index name and shard number, and node to allocate the shard to. It also accepts allow_primary flag to explicitly specify that it is allowed to explicitly allocate a primary shard (might result in data loss).
+2、Warning：The allow_primary parameter will force a new empty primary shard to be allocatedwithout any data. If a node which has a copy of the original shard (including data) rejoins the cluster later on, that data will be deleted: the old shard copy will be replaced by the new live shard copy.
+2017/11/13 15:34:02
