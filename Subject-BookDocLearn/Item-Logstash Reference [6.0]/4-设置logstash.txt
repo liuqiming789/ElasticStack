@@ -1,0 +1,24 @@
+一.配置文件
+1.hierarchical form格式
+pipeline:
+	batch:
+    	size: 125
+    	delay: 5
+2.falt keys格式
+	pipeline.batch.size: 125
+	pipeline.batch.delay: 5
+
+3.支持插入bash环境变量.
+node:
+	name: "node_${LS_NODE_NAME}"
+path:
+   	queue: "/tmp/${QUEUE_DIR:queue}"
+
+注:${VAR_NAME:default_value} notation is supported
+
+
+二.Command Line执行logstash
+
+三.logging
+LS_HOME/logs
+--path.logs setting.

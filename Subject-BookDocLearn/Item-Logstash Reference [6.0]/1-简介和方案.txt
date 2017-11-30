@@ -1,0 +1,63 @@
+一.简介
+(一)logstash_loves_data
+1.logs_and_metrics
+Apache的网络日志, log4j for Java的应用日志;
+捕获syslog,网卡日志等.
+获得filebeat的日志
+
+2.网站
+获取互联网的日志:
+	Webhook 支持github,jira,hipchat
+	支持web service,比如 Twitter 
+
+
+3.Data Stores and Streams
+(1)从消息中间件统一数据流,比如kafka,rabbitmq
+https://www.elastic.co/guide/en/logstash/6.0/plugins-outputs-kafka.html
+https://www.elastic.co/guide/en/logstash/6.0/plugins-outputs-rabbitmq.html
+(2)可以通过jdbc,从数据库获得数据
+https://www.elastic.co/guide/en/logstash/6.0/plugins-inputs-jdbc.html
+
+4.解析数据
+grok,非结构化数据中推导出结构
+使用丰富的patterns来处理网站,系统等类型的日志.
+
+可以处理date,key-values,csv
+
+
+二.方案
+1.分析
+Elasticsearch
+MongoDB and Riak
+https://www.elastic.co/guide/en/logstash/6.0/plugins-outputs-mongodb.html
+
+2.归档
+HDFS
+https://www.elastic.co/guide/en/logstash/6.0/plugins-outputs-webhdfs.html
+
+3.监控
+(1)Nagios output plugin
+(2)Ganglia output plugin
+(3)Zabbix output plugin
+(4)Graphite output plugin
+(5)Datadog
+(6)CloudWatch
+
+4.告警
+(1)Email output plugin
+
+output {
+  if "shouldmail" in [tags] {
+    email {
+      to => 'technical@example.com'
+      from => 'monitor@example.com'
+      subject => 'Alert - %{title}'
+      body => "Tags: %{tags}\\n\\Content:\\n%{message}"
+      domain => 'mail.example.com'
+      port => 25
+    }
+  }
+}
+
+(2)plugins-outputs-pagerduty
+

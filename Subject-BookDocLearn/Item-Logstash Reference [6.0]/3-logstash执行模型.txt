@@ -1,0 +1,37 @@
+一.logstash怎么工作的.
+1.input:
+file,syslog,redis,beats;
+
+2.filters:
+grok:解析和结构化杂乱的文本;
+mutate:修改events的字段,rename,remove,replace,修改.
+drop:删除event,比如debug events;
+clone:复制一个字段;
+geoip:ip的地址;
+
+3.output:
+elasticsearch
+file
+graphite
+statsd
+
+4.codecs(Popular codecs include json, msgpack, and plain (text).)
+json: encode or decode data in the JSON format.
+
+multiline: merge multiple-line text events such as java exception and stacktrace messages into a single event.
+
+
+二.执行模型
+
+ Inputs write events to a common Java SynchronousQueue. This queue holds no events, instead transferring each pushed event to a free worker, blocking if all workers are busy.
+ https://www.elastic.co/guide/en/logstash/current/tuning-logstash.html
+
+ 注意:(内存中的数据可能丢失)
+Logstash uses in-memory bounded queues between pipeline stages (input → filter and filter → output) to buffer events
+If Logstash terminates unsafely, any events that are stored in memory will be lost
+
+防止数据丢失,持续event去磁盘.
+ To prevent data loss, you can enable Logstash to persist in-flight events to disk. See Persistent Queues for more information.
+
+ https://www.elastic.co/guide/en/logstash/current/persistent-queues.html
+

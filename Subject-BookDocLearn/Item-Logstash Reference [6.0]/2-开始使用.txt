@@ -1,0 +1,76 @@
+一.安装
+1.JDK的注意事项:
+Logstash requires Java 8. Java 9 is not supported. Use the official Oracle distribution or an open-source distribution such as OpenJDK.
+
+2.yum安装
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+yum install logstash
+
+3.下载开源包
+
+二.试用
+1.
+logstash流有input,filter,output;filter是修改数据;
+
+2.基本的logstash数据流
+bin/logstash -e 'input { stdin { } } output { stdout {} }'
+
+三.解析日志
+
+1.解析的目的是:
+parses those logs to create specific, named fields from the logs, and writes the parsed data to an Elasticsearch cluste.
+
+2.filebeat
+
+3.multiple pipelines in a single Logstash instance.
+https://www.elastic.co/guide/en/logstash/current/multiple-pipelines.html
+
+4.Parsing Web Logs with the Grok Filter Plugin
+
+
+5.Since Filebeat stores the state of each file it harvests in the registry, deleting the registry file forces Filebeat to read all the files it’s harvesting from scratch.
+
+sudo rm data/registry
+sudo ./filebeat -e -c filebeat.yml -d "publish"
+
+6.geoIP
+从IP获得地理位置信息,并且吧位置信息添加到logs中.
+配置文件为:
+input {
+    beats {
+        port => "5043"
+    }
+}
+ filter {
+    grok {
+        match => { "message" => "%{COMBINEDAPACHELOG}"}
+    }
+    geoip {
+        source => "clientip"
+    }
+}
+output {
+    stdout { codec => rubydebug }
+}
+
+7.多个输入输出
+input {
+    twitter {
+        consumer_key => "enter_your_consumer_key_here"
+        consumer_secret => "enter_your_secret_here"
+        keywords => ["cloud"]
+        oauth_token => "enter_your_access_token_here"
+        oauth_token_secret => "enter_your_access_token_secret_here"
+    }
+    beats {
+        port => "5043"
+    }
+}
+output {
+    elasticsearch {
+        hosts => ["IP Address 1:port1", "IP Address 2:port2", "IP Address 3"]
+    }
+    file {
+        path => "/path/to/target/file"
+    }
+}

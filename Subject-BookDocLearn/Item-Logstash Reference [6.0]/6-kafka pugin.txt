@@ -1,0 +1,2 @@
+https://www.elastic.co/guide/en/logstash/current/plugins-inputs-kafka.html
+https://www.elastic.co/guide/en/logstash/current/plugins-outputs-kafka.html
