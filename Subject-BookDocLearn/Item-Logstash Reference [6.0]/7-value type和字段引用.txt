@@ -1,0 +1,47 @@
+1.array
+  users => [ {id => 1, name => bob}, {id => 2, name => jane} ]
+
+2.lists
+  path => [ "/var/log/messages", "/var/log/*.log" ]
+
+3.布尔
+   ssl_enable => true
+
+4.字节
+Both SI (k M G T P E Z Y) and Binary (Ki Mi Gi Ti Pi Ei Zi Yi)
+  my_bytes => "1113"   # 1113 bytes
+  my_bytes => "10MiB"  # 10485760 bytes
+  my_bytes => "100kib" # 102400 bytes
+  my_bytes => "180 mb" # 180000000 bytes
+
+5.codec
+	codec => "json"
+
+6.Hash
+match => {
+  "field1" => "value1"
+  "field2" => "value2"
+  ...
+}
+
+7.number
+	  port => 33
+
+8.password,URI,path
+  my_password => "password"
+  my_uri => "http://foo:bar@example.net"
+  my_path => "/tmp/logstash"
+
+
+9.转义字符
+\r carriage return (ASCII 13)
+\n new line (ASCII 10)
+\t tab (ASCII 9)
+\\ backslash (ASCII 92)
+\" double quote (ASCII 34)
+\' single quote (ASCII 39)
+
+ name => 'It\'s a beautiful day'
+
+
+二.
