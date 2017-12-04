@@ -44,4 +44,48 @@ match => {
  name => 'It\'s a beautiful day'
 
 
-二.
+二.Accessing Event Data and Fields in the Configuration
+
+1.字段引用
+top-level field: [fieldname]
+nested field:
+[top-level field][nested field]
+
+2.sprintf format
+
+refer to field values from within other strings;
+output {
+  statsd {
+    increment => "apache.%{[response][status]}"
+  }
+}
+
+
+3.sprintf format: based on the event’s date and hour and the type field:
+
+output {
+  file {
+    path => "/var/log/%{type}.%{+yyyy.MM.dd.HH}"
+  }
+}
+
+4.条件语句
+
+if EXPRESSION {
+  ...
+} else if EXPRESSION {
+  ...
+} else {
+  ...
+}
+
+
+5.逻辑语句
+
+equality: ==, !=, <, >, <=, >=
+regexp: =~, !~ (checks a pattern on the right against a string value on the left)
+inclusion: in, not in
+
+6.The @metadata field
+Logstash 1.5 and later,to use for conditionals, or extending and building event fields with field reference and sprintf formatting
+
