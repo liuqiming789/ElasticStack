@@ -1,0 +1,43 @@
+Managing Multiline Events
+
+plugins-codecs-multiline
+https://www.elastic.co/guide/en/logstash/current/plugins-codecs-multiline.html#plugins-codecs-multiline
+
+The original goal of this codec was to allow joining of multiline messages from files into a single event
+
+ joining Java exception and stacktrace messages into a single event.
+
+
+The pattern option specifies a regular expression. Lines that match the specified regular expression are considered either continuations of a previous line or the start of a new multiline event. You can use grok regular expression templates with this configuration option.
+
+Java debug信息:
+
+Exception in thread "main" java.lang.NullPointerException
+        at com.example.myproject.Book.getTitle(Book.java:16)
+        at com.example.myproject.Author.getBookTitles(Author.java:25)
+        at com.example.myproject.Bootstrap.main(Bootstrap.java:14)
+
+input {
+  stdin {
+    codec => multiline {
+      pattern => "^\s"
+      what => "previous"
+    }
+  }
+}
+
+事件信息
+[2015-08-24 11:49:14,389][INFO ][env                      ] [Letha] using [1] data paths, mounts [[/
+(/dev/disk1)]], net usable_space [34.5gb], net total_space [118.9gb], types [hfs]
+
+
+input {
+  file {
+    path => "/var/log/someapp.log"
+    codec => multiline {
+      pattern => "^%{TIMESTAMP_ISO8601} "
+      negate => true
+      what => previous
+    }
+  }
+}

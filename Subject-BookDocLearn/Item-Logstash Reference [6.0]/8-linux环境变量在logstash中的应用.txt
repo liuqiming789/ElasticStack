@@ -1,0 +1,77 @@
+At Logstash startup, each reference will be replaced by the value of the environment variable.
+You can give a default value by using the form ${var:default value}. Logstash uses the default value if the environment variable is undefined.
+
+一.在logstash.yml配置文件中使用环境变量
+1.支持插入bash环境变量.
+node:
+	name: "node_${LS_NODE_NAME}"
+path:
+   	queue: "/tmp/${QUEUE_DIR:queue}"
+
+
+二.logstash的过滤conf文件
+
+1.端口类:
+input {
+  tcp {
+    port => "${TCP_PORT:54321}"
+  }
+}
+
+2.tag类
+filter {
+  mutate {
+    add_tag => [ "tag1", "tag2" ]
+  }
+}
+
+3.路径类
+filter {
+  mutate {
+    add_field => {
+      "my_path" => "${HOME}/file.log"
+    }
+  }
+}
+
+三.例子
+1.条件语句
+
+filter {
+  if [path] =~ "access" {
+    mutate { replace => { type => "apache_access" } }
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+    }
+    date {
+      match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+    }
+  } else if [path] =~ "error" {
+    mutate { replace => { type => "apache_error" } }
+  } else {
+    mutate { replace => { type => "random_logs" } }
+  }
+}
+
+输出:
+output {
+  if [type] == "apache" {
+    if [status] =~ /^5\d\d/ {
+      nagios { ...  }
+    } else if [status] =~ /^4\d\d/ {
+      elasticsearch { ... }
+    }
+    statsd { increment => "apache.%{status}" }
+  }
+}
+
+三.
+**
+Match directories recursively.
+
+"/var/log/*.log"
+Matches log files ending in .log in the specified path.
+"/var/log/**/*.log
+Matches log files ending in .log in subdirectories under the specified path.
+"/path/to/logs/{app1,app2,app3}/data.log"
+Matches app log files in the app1, app2, and app3 subdirectories under the specified path.
