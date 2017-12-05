@@ -62,6 +62,7 @@ output {
 
 
 3.sprintf format: based on the event’s date and hour and the type field:
+"@timestamp"的默认格式+yyyy.MM.dd.HH
 
 output {
   file {
@@ -89,3 +90,46 @@ inclusion: in, not in
 6.The @metadata field
 Logstash 1.5 and later,to use for conditionals, or extending and building event fields with field reference and sprintf formatting
 
+配置文件:
+
+input { stdin { } }
+
+filter {
+  mutate { add_field => { "show" => "This data will be in the output" } }
+  mutate { add_field => { "[@metadata][test]" => "Hello" } }
+  mutate { add_field => { "[@metadata][no_show]" => "This data will not be in the output" } }
+}
+
+output {
+  if [@metadata][test] == "Hello" {
+    stdout { codec => rubydebug }
+  }
+}
+
+启动
+bin/logstash -f config/test.conf
+
+输入:
+hello world
+
+输出:
+{
+    "@timestamp" => 2017-12-05T02:20:30.493Z,
+      "@version" => "1",
+          "host" => "bjxhm-hadoopelk-77",
+          "show" => "This data will be in the output",
+       "message" => "hello world"
+}
+
+
+注意:
+But the output did not show a field called @metadata, or its contents.
+
+除非
+codec => rubydebug { metadata => true }
+
+才输出
+"@metadata" => {
+           "test" => "Hello",
+        "no_show" => "This data will not be in the output"
+    },
