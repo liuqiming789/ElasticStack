@@ -1,0 +1,26 @@
+Persistent Queues protect against data loss by storing events in an internal queue on disk.
+
+logstash使用内存绑定的队列,来缓存events,内存的大小
+
+In summary, the benefits of enabling persistent queues are as follows:
+
+1. Absorbs bursts of events without needing an external buffering mechanism like Redis or Apache Kafka.
+2. Provides an at-least-once delivery guarantee against message loss during a normal shutdown as well as when Logstash is terminated abnormally. If Logstash is restarted while events are in-flight, Logstash will attempt to deliver messages stored in the persistent queue until delivery succeeds at least once.
+
+缺点:
+The data persisted to disk is not replicated.
+Input plugins that do not use a request-response protocol cannot be protected from data loss
+
+
+input → queue → filter + output
+
+配置:
+default: queue.type: memory
+		 queue.type: persisted
+
+path.queue: The directory path where the data files will be stored. By default, the files are stored in path.data/queue.
+queue.page_capacity: The maximum size of a queue page in bytes. The queue data consists of append-only files called "pages". The default size is 250mb. Changing this value is unlikely to have performance benefits.
+queue.max_bytes: The total capacity of the queue in number of bytes. The default is 1024mb (1gb). Make sure the capacity of your disk drive is greater than the value you specify here.
+
+
+https://www.elastic.co/guide/en/logstash/current/persistent-queues.html

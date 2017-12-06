@@ -1,0 +1,22 @@
+Dead Letter Queues provide on-disk storage for events that Logstash is unable to process. You can easily reprocess events in the dead letter queue by using the dead_letter_queue input plugin.
+
+The dead letter queue feature is currently supported for the elasticsearch output only. Additionally, The dead letter queue is only used where the response code is either 400 or 404, both of which indicate an event that cannot be retried
+
+dead_letter_queue.enable: true
+path.dead_letter_queue: "path/to/data/dead_letter_queue"
+
+
+input {
+  dead_letter_queue {
+    path => "/path/to/data/dead_letter_queue" 
+    commit_offsets => true 
+    pipeline_id => "main" 
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug { metadata => true }
+  }
+}
+

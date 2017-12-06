@@ -1,0 +1,31 @@
+Each module comes pre-packaged with Logstash configurations, Kibana dashboards, and other meta files that make it easier for you to set up the Elastic Stack for specific use cases or data sources.
+
+ When you run a module, it will:
+
+1.Create the Elasticsearch index.
+2.Set up the Kibana dashboards, including the index pattern, searches, and visualizations required to visualize your data in Kibana.
+3.Run the Logstash pipeline with the configurations required to read and parse the data.
+
+执行模型:
+
+bin/logstash --modules netflow -M "netflow.var.elasticsearch.host=es.mycloud.com"
+
+配置模型
+--在logstash.yml中配置设置.
+
+modules:
+- name: netflow
+  var.elasticsearch.hosts: "es.mycloud.com"
+  var.elasticsearch.username: "foo"
+  var.elasticsearch.password: "password"
+  var.kibana.host: "kb.mycloud.com"
+  var.kibana.username: "foo"
+  var.kibana.password: "password"
+  var.input.tcp.port: 5606
+
+
+二.filebeat 模型
+./filebeat modules enable nginx
+
+
+
