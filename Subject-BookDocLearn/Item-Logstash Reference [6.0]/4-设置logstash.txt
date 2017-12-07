@@ -22,3 +22,16 @@ path:
 三.logging
 LS_HOME/logs
 --path.logs setting.
+
+1.Logging APIs
+curl -XPUT 'localhost:9600/_node/logging?pretty' -H 'Content-Type: application/json' -d'
+{
+    "logger.logstash.outputs.elasticsearch" : "DEBUG"
+}
+
+注意:
+this new setting is transient and will not survive a restart.
+Persistent changes should be added to log4j2.properties. For example:
+
+logger.elasticsearchoutput.name = logstash.outputs.elasticsearch
+logger.elasticsearchoutput.level = debug

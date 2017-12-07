@@ -26,6 +26,7 @@ modules:
 
 二.filebeat 模型
 ./filebeat modules enable nginx
+./filebeat -e
 
 
 

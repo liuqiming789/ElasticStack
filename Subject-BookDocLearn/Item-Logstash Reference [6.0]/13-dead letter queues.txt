@@ -2,8 +2,19 @@ Dead Letter Queues provide on-disk storage for events that Logstash is unable to
 
 The dead letter queue feature is currently supported for the elasticsearch output only. Additionally, The dead letter queue is only used where the response code is either 400 or 404, both of which indicate an event that cannot be retried
 
+
+针对mapping error or some other issue,这些the unsuccessful event,写到dead letter queue instead of dropping them.
+
+使用起来很方便:
+uses the dead_letter_queue input plugin to read from the queue.
+
+
 dead_letter_queue.enable: true
 path.dead_letter_queue: "path/to/data/dead_letter_queue"
+
+
+报错游标功能:
+    commit_offsets => true 
 
 
 input {
@@ -20,3 +31,14 @@ output {
   }
 }
 
+
+
+通过时间错读取
+
+input {
+  dead_letter_queue {
+    path => "/path/to/data/dead_letter_queue"
+    start_timestamp => 2017-06-06T23:40:37
+    pipeline_id => "main"
+  }
+}

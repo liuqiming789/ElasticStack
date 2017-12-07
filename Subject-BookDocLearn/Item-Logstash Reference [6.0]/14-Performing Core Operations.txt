@@ -1,0 +1,31 @@
+一.date filter
+设置格式
+filter {
+  date {
+    match => [ "logdate", "MMM dd yyyy HH:mm:ss" ]
+  }
+}
+
+二.drop filter
+删除消息
+filter {
+  if [loglevel] == "debug" {
+    drop { }
+  }
+}
+
+三.mutate 
+
+1.重命名
+filter {
+  mutate {
+    rename => { "HOSTORIP" => "client_ip" }
+  }
+}
+
+2.去掉前后空白格
+filter {
+  mutate {
+    strip => ["field1", "field2"]
+  }
+}
