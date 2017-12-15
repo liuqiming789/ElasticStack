@@ -1,0 +1,6 @@
+near real time search platform;
+
+集群:
+ This name is important because a node can only be part of a cluster if the node is set up to join the cluster by its name.
+
+ 
