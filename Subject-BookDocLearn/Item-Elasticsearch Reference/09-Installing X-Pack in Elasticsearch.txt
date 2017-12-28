@@ -1,0 +1,31 @@
+Optional: If you want to install X-Pack on a machine that doesn’t have internet access:
+
+Manually download the X-Pack zip file: https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-6.1.1.zip (sha512)
+
+Note
+The plugins for Elasticsearch, Kibana, and Logstash are included in the same zip file. If you have already downloaded this file to install X-Pack on one of those other products, you can reuse the same file.
+
+Transfer the zip file to a temporary directory on the offline machine. (Do NOT put the file in the Elasticsearch plugins directory.)
+
+specify the location of the X-Pack zip file that you downloaded to a temporary directory.
+
+bin/elasticsearch-plugin install file:///path/to/file/x-pack-6.1.1.zip
+
+or
+
+bin/elasticsearch-plugin install x-pack
+
+Generate node certificates. For example, you can use the certgen command line tool to generate a certificate authority and signed certificates for your nodes.
+
+bin/x-pack/certgen
+
+bin/x-pack/setup-passwords interactive
+
+一.机器学习
+1.elasticsearch.yml
+(1)node.ml:
+    Set to true (default) to identify the node as a machine learning node.
+(2)xpack.ml.enabled
+	Set to true (default) to enable machine learning on the node.
+	If set to false in elasticsearch.yml, the machine learning APIs are disabled on the node. 
+2.管理节点,需要disable the node.ml role.

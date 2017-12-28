@@ -1,0 +1,219 @@
+<REST Verb> /<Index>/<Type>/<ID>
+
+一.数据的插入
+POST /customer/doc?pretty
+{
+  "name": "xxx Doe"
+}
+
+PUT /customer/doc/1?pretty
+{
+  "name": "Jane Doe"
+}
+
+PUT /customer/doc/2?pretty
+{
+  "name": "Jane Doe"
+}
+
+
+_index _type _id 		▲ _score name 
+customer doc 			2 1 Jane Doe 
+customer doc 			1 1 Jane Doe 
+customer doc 			AWCMksz3XBd8iSkf6vQn 1 xxx Doe
+
+二.数据的更新
+POST /customer/doc/1/_update?pretty
+{
+  "doc": { "name": "Jane Doe", "age": 20 }
+}
+
+三.批量插入
+POST /customer/doc/_bulk?pretty
+{"index":{"_id":"1"}}
+{"name": "John Doe" }
+{"index":{"_id":"2"}}
+{"name": "Jane Doe" }
+
+POST /customer/doc/_bulk?pretty
+{"update":{"_id":"1"}}
+{"doc": { "name": "John Doe becomes Jane Doe" } }
+{"delete":{"_id":"2"}}
+
+四.introducing_the_query_language
+
+GET /customer/_search
+{
+  "query": { "match_all": {} },
+  "from": 1,
+  "size": 1
+}
+
+GET /customer/_search
+{
+  "query": { "match_all": {} },
+  "sort": { "name": { "order": "desc" } }
+}
+
+
+# This is referred to as the source (_source field in the search hits)
+
+GET /bank/_search
+{
+  "query": { "match_all": {} },
+  "_source": ["account_number", "balance"]
+}
+
+
+五.执行查询
+
+This example returns all accounts containing the term "mill" or "lane" in the address:
+
+GET /bank/_search
+{
+  "query": { "match": { "address": "mill lane" } }
+}
+
+
+This example returns the account numbered 20:
+
+GET /bank/_search
+{
+  "query": { "match": { "account_number": 20 } }
+}
+
+
+This example is a variant of match (match_phrase) that returns all accounts containing the phrase "mill lane" in the address:
+
+GET /bank/_search
+{
+  "query": { "match_phrase": { "address": "mill lane" } }
+}
+
+
+
+This example composes two match queries and returns all accounts containing "mill" and "lane" in the address:
+
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "address": "mill" } },
+        { "match": { "address": "lane" } }
+      ]
+    }
+  }
+}
+
+
+In contrast, this example composes two match queries and returns all accounts containing "mill" or "lane" in the address:
+
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "address": "mill" } },
+        { "match": { "address": "lane" } }
+      ]
+    }
+  }
+}
+
+
+
+This example composes two match queries and returns all accounts that contain neither "mill" nor "lane" in the address:
+
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        { "match": { "address": "mill" } },
+        { "match": { "address": "lane" } }
+      ]
+    }
+  }
+}
+
+
+This example returns all accounts of anybody who is 40 years old but doesn’t live in ID(aho):
+
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "age": "40" } }
+      ],
+      "must_not": [
+        { "match": { "state": "ID" } }
+      ]
+    }
+  }
+}
+
+六.执行过滤
+This example uses a bool query to return all accounts with balances between 20000 and 30000, inclusive. In other words, we want to find accounts with a balance that is greater than or equal to 20000 and less than or equal to 30000.
+
+GET /bank/_search
+{
+  "query": {
+    "bool": {
+      "must": { "match_all": {} },
+      "filter": {
+        "range": {
+          "balance": {
+            "gte": 20000,
+            "lte": 30000
+          }
+        }
+      }
+    }
+  }
+}
+
+
+七.执行聚合
+
+To start with, this example groups all the accounts by state, and then returns the top 10 (default) states sorted by count descending (also default):
+
+GET /bank/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_by_state": {
+      "terms": {
+        "field": "state.keyword"
+      }
+    }
+  }
+}
+COPY AS CURLVIEW IN CONSOLE 
+In SQL, the above aggregation is similar in concept to:
+
+SELECT state, COUNT(*) FROM bank GROUP BY state ORDER BY COUNT(*) DESC
+
+
+Building on the previous aggregation, this example calculates the average account balance by state (again only for the top 10 states sorted by count in descending order):
+
+GET /bank/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_by_state": {
+      "terms": {
+        "field": "state.keyword"
+      },
+      "aggs": {
+        "average_balance": {
+          "avg": {
+            "field": "balance"
+          }
+        }
+      }
+    }
+  }
+}
+

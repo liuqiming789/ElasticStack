@@ -1,0 +1,32 @@
+curl -XPUT 'localhost:9200/_cluster/settings?pretty' -H 'Content-Type: application/json' -d'
+{
+    "persistent" : {
+        "indices.recovery.max_bytes_per_sec" : "50mb"
+    }
+}
+'
+
+
+PUT /_cluster/settings
+{
+    "persistent" : {
+        "indices.recovery.max_bytes_per_sec" : "50mb"
+    }
+}
+
+
+curl -XPUT 'localhost:9200/_cluster/settings?flat_settings=true&pretty' -H 'Content-Type: application/json' -d'
+{
+    "transient" : {
+        "indices.recovery.max_bytes_per_sec" : "20mb"
+    }
+}
+'
+
+PUT /_cluster/settings?flat_settings=true
+{
+    "transient" : {
+        "indices.recovery.max_bytes_per_sec" : "20mb"
+    }
+}
+

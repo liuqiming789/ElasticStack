@@ -1,0 +1,71 @@
+Disable shard allocation.
+
+一.关闭
+原因:
+When you shut down a node, the allocation process waits for one minute before starting to replicate the shards on that node to other nodes in the cluster, causing a lot of wasted I/O. 
+
+
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": "none"
+  }
+}
+
+{
+  "acknowledged": true,
+  "persistent": {
+    "cluster": {
+      "routing": {
+        "allocation": {
+          "enable": "none"
+        }
+      }
+    }
+  },
+  "transient": {}
+}
+
+二.刷新:提交正在进行的事务,完成数据的持续化
+Elasticsearch tracks the indexing activity of each shard. Shards that have not received any indexing operations for 5 minutes are automatically marked as inactive. This presents an opportunity for Elasticsearch to reduce shard resources and also perform a special kind of flush, called synced flush. A synced flush performs a normal flush, then adds a generated unique marker (sync_id) to all shards.
+
+POST _flush/synced
+
+{
+  "_shards": {
+    "total": 12,
+    "successful": 6,
+    "failed": 0
+  },
+  ".kibana": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+  },
+  "customer": {
+    "total": 10,
+    "successful": 5,
+    "failed": 0
+  }
+}
+
+三.关闭节点,修改软件
+四.启动节点
+五.使分片生效
+
+Once the node has joined the cluster, reenable shard allocation to start using the node:
+
+PUT _cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.enable": "all"
+  }
+}
+
+六.Wait for the node to recover.
+
+GET _cat/health
+
+Shards that were not sync-flushed might take longer to recover. You can monitor the recovery status of individual shards by submitting a _cat/recovery request:
+
+GET _cat/recovery

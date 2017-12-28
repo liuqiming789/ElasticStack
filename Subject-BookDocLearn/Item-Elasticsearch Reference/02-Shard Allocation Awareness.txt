@@ -1,0 +1,16 @@
+When running nodes on multiple VMs on the same physical server, on multiple racks, or across multiple awareness zones, it is more likely that two nodes on the same physical server, in the same rack, or in the same awareness zone will crash at the same time, rather than two unrelated nodes crashing simultaneously.
+
+If Elasticsearch is aware of the physical configuration of your hardware, it can ensure that the primary shard and its replica shards are spread across different physical servers, racks, or zones, to minimise the risk of losing all shard copies at the same time.
+
+The shard allocation awareness settings allow you to tell Elasticsearch about your hardware configuration.
+
+As an example, let’s assume we have several racks. When we start a node, we can tell it which rack it is in by assigning it an arbitrary metadata attribute called rack_id — we could use any attribute name. For example:
+
+./bin/elasticsearch -Enode.attr.rack_id=rack_one 
+
+
+cluster.routing.allocation.awareness.attributes: rack_id
+With this config in place, let’s say we start two nodes with node.attr.rack_id set to rack_one, and we create an index with 5 primary shards and 1 replica of each primary. All primaries and replicas are allocated across the two nodes.
+
+Now, if we start two more nodes with node.attr.rack_id set to rack_two, Elasticsearch will move shards across to the new nodes, ensuring (if possible) that no two copies of the same shard will be in the same rack. However if rack_two were to fail, taking down both of its nodes, Elasticsearch will still allocate the lost shard copies to nodes in rack_one.
+

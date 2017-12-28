@@ -1,0 +1,2 @@
+http://172.28.11.167:5601/app/kibana#/dev_tools/console?load_from=https://www.elastic.co/guide/en/elasticsearch/reference/current/snippets/_index_and_query_a_document/2.json
+

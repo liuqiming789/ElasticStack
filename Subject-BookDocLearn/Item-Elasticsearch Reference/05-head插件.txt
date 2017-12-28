@@ -1,0 +1,38 @@
+http://mobz.github.io/elasticsearch-head/
+https://github.com/mobz/elasticsearch-head
+
+一.前提:
+# For more information, consult the network module documentation.
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-headers: Authorization
+
+二.离线访问方法:
+
+elasticsearch-head/index.html?base_uri=http://127.0.0.1:9200&auth_user=elastic&auth_password=changeme
+
+URL Parameters
+
+Parameters may be appended to the url to set an initial state eg. head/index.html?base_uri=http://node-01.example.com:9200
+
+base_uri force elasticsearch-head to connect to a particular node.
+dashboard experimental feature to open elasticsearch-head in a mode suitable for dashboard / radiator. Accepts one parameter dashboard=cluster
+auth_user adds basic auth credentials to http requests ( requires elasticsearch-http-basic plugin or a reverse proxy )
+auth_password basic auth password as above (note: without additional security layers, passwords are sent over the network in the clear )
+lang force elasticsearch-head to use specified ui language (eg: en, fr, pt, zh, tr, ja)
+
+
+三.服务启动方法:
+
+Running with built in server
+
+git clone git://github.com/mobz/elasticsearch-head.git
+cd elasticsearch-head
+npm install
+npm run start
+open http://localhost:9100/
+This will start a local webserver running on port 9100 serving elasticsearch-hea
+
+
+http://localhost:9100?base_uri=http://172.28.11.167:9200
+

@@ -1,6 +1,19 @@
-near real time search platform;
+一.near real time search platform;
 
-集群:
+1.集群:
  This name is important because a node can only be part of a cluster if the node is set up to join the cluster by its name.
+2.节点:
+a node is identified UUID.join a specific cluster by the cluster name
+3.索引:
+An index is identified by a name (that must be all lowercase);必须小写.
+4.类型:
+ach document has been stored in a single index and assigned a single mapping type.
+5.文档:
+http://json.org/
+6.分片和副本:
+subdivide your index into multiple pieces called shards;
+Sharding is important for two primary reasons:
 
- 
+It allows you to horizontally split/scale your content volume
+It allows you to distribute and parallelize operations across shards (potentially on multiple nodes) thus increasing performance/throughput
+
