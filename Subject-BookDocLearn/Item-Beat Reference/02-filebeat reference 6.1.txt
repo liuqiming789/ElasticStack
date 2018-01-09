@@ -1,0 +1,64 @@
+一.简述
+1.定义:Filebeat is a log data shipper for local files
+2.原理:tail文件.Filebeat monitors the log directories or specific log files, tails the files, and forwards them either to Elasticsearch or Logstash for indexing.
+
+3.工作过程
+(1)filebeat启动探针程序prospectors监控本地文件.
+(2)filebeat启动收获者程序harvester读取文件的新内容,发送新的数据到libbeat
+(3)libbeat聚合数据,aggregates the events and sends the aggregated data to the output that you’ve configured for Filebeat.
+
+二.How Filebeat worksed
+(一)What is a harvester?
+harvester负责读取单个文件的内容,一行一行的读,发送到output.
+harvester负责打开和关闭文件,当它运行的时候,文件句柄是打开的,文件重命名或者移动是没有关系的,仍可以被读.
+
+By default, Filebeat keeps the file open until close_inactive is reached.
+
+Closing a harvester has the following consequences:
+
+The file handler is closed, freeing up the underlying resources if the file was deleted while the harvester was still reading the file.
+The harvesting of the file will only be started again after scan_frequency has elapsed.
+If the file is moved or removed while the harvester is closed, harvesting of the file will not continue.
+To control when a harvester is closed, use the close_* configuration options.
+
+(二)What is a prospector?
+A prospector is responsible for managing the harvesters and finding all sources to read from.
+
+If the input type is log, the prospector finds all files on the drive that match the defined glob paths and starts a harvester for each file. Each prospector runs in its own Go routine
+
+filebeat.prospectors:
+- type: log
+  paths:
+    - /var/log/*.log
+    - /var/path2/*.log
+
+Filebeat currently supports two prospector types: log and stdin
+
+The log prospector checks each file to see whether a harvester needs to be started, whether one is already running, or whether the file can be ignored (see ignore_older). New lines are only picked up if the size of the file has changed since the harvester was closed.
+
+三.Getting Started With Filebeat
+
+If you are sending output directly to Elasticsearch (and not using Logstash), set the IP address and port where Filebeat can find the Elasticsearch installation:
+
+output.elasticsearch:
+  hosts: ["192.168.1.42:9200"]
+
+If you plan to use the sample Kibana dashboards provided with Filebeat, configure the Kibana endpoint:
+
+setup.kibana:
+  host: "localhost:5601"
+
+If you’ve secured Elasticsearch and Kibana, you need to specify credentials in the config file before you run the commands that set up and start Filebeat. For example:
+
+output.elasticsearch:
+  hosts: ["myEShost:9200"]
+  username: "elastic"
+  password: "elastic"
+setup.kibana:
+  host: "mykibanahost:5601"
+  username: "elastic" 
+  password: "elastic"
+
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  hosts: ["127.0.0.1:5044"]
