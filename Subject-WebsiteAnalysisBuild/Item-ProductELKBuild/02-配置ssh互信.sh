@@ -29,3 +29,31 @@ ssh 192.168.11.74 'uptime'
 ssh 192.168.11.75 'uptime'
 ssh 192.168.11.76 'uptime'
 ssh 192.168.11.77 'uptime'
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that the RSA host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+2f:79:1a:7a:51:06:91:52:c5:cb:1f:8c:89:f9:b1:c7.
+Please contact your system administrator.
+Add correct host key in /app/elk/.ssh/known_hosts to get rid of this message.
+Offending key in /app/elk/.ssh/known_hosts:4
+RSA host key for 192.168.11.73 has changed and you have requested strict checking.
+Host key verification failed.
+
+
+192.168.11.73
+192.168.11.74
+192.168.11.75
+192.168.11.76
+192.168.11.77
+
+echo "" > /app/elk/.ssh/known_hosts
+
+ssh 192.168.11.73 'uptime';ssh 192.168.11.74 'uptime';ssh 192.168.11.75 'uptime';ssh 192.168.11.76 'uptime';ssh 192.168.11.77 'uptime'
+

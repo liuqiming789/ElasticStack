@@ -1,0 +1,42 @@
+PUT /_template/template_wopayapp
+{
+    "index_patterns" : ["wopayapp*"],
+    "order" : 0,
+
+    "settings" : {
+        "number_of_shards": 5,
+        "number_of_replicas": 1
+    },
+
+    "mappings": {
+        "log": {
+            "properties": {
+                "c_ip":             { "type": "ip"  },
+
+                "cs_uri_stem":      { "type": "text"  },
+                "sc_status":        { "type": "text" },
+                "cs_User_Agent":    { "type": "text"  },
+                "dcs_id":           { "type": "text"  },
+
+                "WT_tz":            { "type": "integer" },
+                "WT_ets":           { "type": "integer" },
+                "WT_vtvs":          { "type": "integer" },
+                "WT_vt_f_tlh":      { "type": "integer" },
+
+                "web_timestamp":    {
+                        "type":   "date",
+                        "format": "strict_date_optional_time||epoch_millis"
+                },
+                "date":             {
+                        "type":   "date",
+                        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+                },
+                "time":             {
+                        "type":   "date",
+                        "format": "HH:mm:ss||epoch_millis"
+                }
+            }
+        }
+    }
+}
+
